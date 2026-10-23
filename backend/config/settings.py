@@ -23,6 +23,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # AJOUT : sert les fichiers statiques en production
     'apps.common.middleware.NoCacheMiddleware',  # en-têtes anti-cache : pas de retour arrière vers des données après déconnexion
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -45,19 +46,24 @@ TEMPLATES = [{
 }]
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# PostgreSQL (SGBDR). Les identifiants viennent du fichier .env (jamais du code).
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST', default='127.0.0.1'),
-        'PORT': env('DB_PORT', default='5432'),
-        'CONN_MAX_AGE': env.int('DB_CONN_MAX_AGE', default=60),
-        'OPTIONS': {'connect_timeout': 10},
+# MODIFIÉ : PostgreSQL (SGBDR).
+# Sur Render, DATABASE_URL est fournie ; en local, on garde les variables DB_* du fichier .env.
+if env('DATABASE_URL', default=None):
+    DATABASES = {'default': env.db('DATABASE_URL')}
+    DATABASES['default']['CONN_MAX_AGE'] = env.int('DB_CONN_MAX_AGE', default=60)
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST', default='127.0.0.1'),
+            'PORT': env('DB_PORT', default='5432'),
+            'CONN_MAX_AGE': env.int('DB_CONN_MAX_AGE', default=60),
+            'OPTIONS': {'connect_timeout': 10},
+        }
     }
-}
 
 AUTH_USER_MODEL = 'authentication.User'
 AUTHENTICATION_BACKENDS = ['apps.authentication.backends.CaseInsensitiveEmailBackend']  # e-mail insensible à la casse
@@ -74,6 +80,7 @@ TIME_ZONE = env('TIME_ZONE', default='Indian/Antananarivo')  # « aujourd'hui »
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # AJOUT : dossier rempli par « collectstatic »
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
