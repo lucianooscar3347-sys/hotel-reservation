@@ -1,0 +1,7 @@
+# En-têtes HTTP pour un hébergement statique (Netlify, Cloudflare Pages) : pages jamais mises en cache,
+# fichiers de /assets (nom contenant une empreinte) conservés longtemps. Sur Render : onglet « Headers » du site statique.
+/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,4 @@
+Correctif connexion (e-mail insensible a la casse)
+1. Copiez le dossier "backend" de cette archive PAR-DESSUS le dossier backend de votre projet (acceptez de remplacer 4 fichiers).
+   Votre fichier .env et votre base de donnees ne sont pas touches.
+2. Arretez le backend (Ctrl+C) puis relancez : python manage.py runserver

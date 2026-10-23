@@ -1,0 +1,19 @@
+# PostgreSQL local en une commande :  docker compose up -d
+# (alternative à une installation PostgreSQL classique). Identifiants = ceux de backend/.env.example.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hotel_db
+      POSTGRES_USER: hotel_user
+      POSTGRES_PASSWORD: change-me
+      TZ: Indian/Antananarivo
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotel_user -d hotel_db"]
+      interval: 5s
+      retries: 10
+volumes:
+  pgdata:
